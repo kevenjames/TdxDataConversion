@@ -18,19 +18,19 @@ void RegisterDataInterface(PDATAIOFUNC pfn)
 void GetCopyRightInfo(LPPLUGIN info)
 {
 	//填写基本信息
-	strcpy_s(info->Name,"获取数据");
-	strcpy_s(info->Dy,"深圳");
-	strcpy_s(info->Author,"田雨");
-	strcpy_s(info->Period,"");
-	strcpy_s(info->Descript,"");
-	strcpy_s(info->OtherInfo,"");
+	strcpy(info->Name,"获取数据");
+	strcpy(info->Dy,"深圳");
+	strcpy(info->Author,"田雨");
+	strcpy(info->Period,"");
+	strcpy(info->Descript,"");
+	strcpy(info->OtherInfo,"");
 	//填写参数信息
 	info->ParamNum = 1;
-	strcpy_s(info->ParamInfo[0].acParaName,"数据类型");
+	strcpy(info->ParamInfo[0].acParaName,"数据类型");
 	info->ParamInfo[0].nMin=1;
 	info->ParamInfo[0].nMax=100;
 	info->ParamInfo[0].nDefault=1;
-	strcpy_s(info->ParamInfo[1].acParaName,"数据条数");
+	strcpy(info->ParamInfo[1].acParaName,"数据条数");
 	info->ParamInfo[1].nMin=1;
 	info->ParamInfo[1].nMax=1000;
 	info->ParamInfo[1].nDefault=60;

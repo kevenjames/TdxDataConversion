@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Log.h"
 #include <stdarg.h>
 #include <windows.h>
