@@ -7,6 +7,8 @@
 #include "plugin.h"
 #include "log.h"
 #include "DataConstructor.h"
+#include <fstream>
+#include <atlstr.h>
 
 PDATAIOFUNC	 m_pfn;
 CLog& m_log = CLog::Instance();
@@ -66,8 +68,19 @@ BOOL InputInfoThenCalc1(char * Code,		//股票代码
 
 	LPHISDAT pHisDat = new HISDAT[nDataNum];  //数据缓冲区
 	long readnum = m_pfn(Code,nSetCode,DataType,pHisDat,nDataNum,tmpTime,tmpTime,nTQ,0);  //利用回调函数申请数据，返回得到的数据个数
-	CLog::Log(LOG_TRACE, "code:%s\tSet:%d\tDataType:%d\tDataNum:%d\tReadNum:%d", 
-		Code, nSetCode, DataType, nDataNum, readnum);
+	//CLog::Log(LOG_TRACE, "code:%s\tSet:%d\tDataType:%d\tDataNum:%d\tReadNum:%d", 
+	//	Code, nSetCode, DataType, nDataNum, readnum);
+
+	CString strFileName;
+	strFileName.Format(_T("D:\\new_zszq\\Log\\%s.day"), Code);
+	CLog::Log(LOG_TRACE, "pathname:%s", strFileName);
+	ofstream rs(strFileName, ios::binary);
+	long lTotLength = readnum * sizeof(tag_HISDAT);
+	rs.write((char*)pHisDat, lTotLength);
+
+	rs.close();
+
+
 	//m_log.Log( LogLevel::LOG_TRACE, ("%s,%d,%d,%d,%d,%d,%d,%d,%d"), Code, nSetCode, Value[0], Value[1], DataType, nDataNum, nTQ, readnum);
 	
 	//if( readnum > max(Value[0],Value[1]) ) //只有数据个数大于Value[0]和Value[1]中的最大值才有意义
@@ -88,7 +101,8 @@ BOOL InputInfoThenCalc1(char * Code,		//股票代码
 		//delete []pMa2;pMa2=NULL;
 	//}
 
-	delete []pHisDat;pHisDat=NULL;
+	delete []pHisDat;
+	pHisDat=NULL;
 	return nRet;
 }
 
