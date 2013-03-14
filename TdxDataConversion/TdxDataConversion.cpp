@@ -5,8 +5,11 @@
 
 #include "stdafx.h"
 #include "plugin.h"
+#include "log.h"
+#include "DataConstructor.h"
 
 PDATAIOFUNC	 m_pfn;
+CLog& m_log = CLog::Instance();
 
 void RegisterDataInterface(PDATAIOFUNC pfn)
 {
@@ -25,15 +28,15 @@ void GetCopyRightInfo(LPPLUGIN info)
 	strcpy(info->Descript,"");
 	strcpy(info->OtherInfo,"");
 	//填写参数信息
-	info->ParamNum = 1;
+	info->ParamNum = 2;
 	strcpy(info->ParamInfo[0].acParaName,"数据类型");
 	info->ParamInfo[0].nMin=1;
 	info->ParamInfo[0].nMax=100;
 	info->ParamInfo[0].nDefault=1;
 	strcpy(info->ParamInfo[1].acParaName,"数据条数");
 	info->ParamInfo[1].nMin=1;
-	info->ParamInfo[1].nMax=1000;
-	info->ParamInfo[1].nDefault=60;
+	info->ParamInfo[1].nMax=10000;
+	info->ParamInfo[1].nDefault=2000;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,38 +50,6 @@ WORD   AfxRightData(float*pData,WORD nMaxData)	//获取有效数据位置
 }
 ////////////////////////////////////////////////////////////////////////////////
 //自定义实现细节函数(可根据选股需要添加)
-
-void   AfxCalcMa(float*pData,long nData,WORD nParam)
-{	
-	if(pData==NULL||nData==0||nParam==1) return;
-	long i=nData-nParam+1,nMinEx=AfxRightData(pData,nData);
-	if(nParam==0||nParam+nMinEx>nData) nMinEx=nData;
-	else
-	{	
-		float	nDataEx=0,nDataSave=0;
-		float	*MaPtr=pData+nData-1,*DataPtr=pData+nData-nParam;
-		for(nMinEx+=nParam-1;i<nData;nDataEx+=pData[i++]);
-		for(i=nData-1;i>=nMinEx;i--,MaPtr--,DataPtr--)
-		{
-			nDataEx+=(*DataPtr);
-			nDataSave=(*MaPtr);
-			*MaPtr=nDataEx/nParam;
-			nDataEx-=nDataSave;
-		}
-	}
-}
-
-WORD   AfxCross(float*psData,float*plData,WORD nIndex,float&nCross)
-{	
-	if(psData==NULL||plData==NULL||nIndex==0) return(0);
-	float  nDif=psData[nIndex-1]-plData[nIndex-1];
-	float  nDifEx=plData[nIndex]-psData[nIndex];
-	float  nRatio=(nDif+nDifEx)?nDif/(nDif+nDifEx):0;
-	nCross=psData[nIndex-1]+(psData[nIndex]-psData[nIndex-1])*nRatio;
-	if(nDif<0&&nDifEx<0)	return(1);
-	if(nDif>0&&nDifEx>0)	return(2);
-	return(0);
-}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //
@@ -95,23 +66,27 @@ BOOL InputInfoThenCalc1(char * Code,		//股票代码
 
 	LPHISDAT pHisDat = new HISDAT[nDataNum];  //数据缓冲区
 	long readnum = m_pfn(Code,nSetCode,DataType,pHisDat,nDataNum,tmpTime,tmpTime,nTQ,0);  //利用回调函数申请数据，返回得到的数据个数
-	if( readnum > max(Value[0],Value[1]) ) //只有数据个数大于Value[0]和Value[1]中的最大值才有意义
-	{
-		float *pMa1 = new float[readnum];
-		float *pMa2 = new float[readnum];
-		for(int i=0;i < readnum;i++)
-		{
-			pMa1[i] = pHisDat[i].Close;
-			pMa2[i] = pHisDat[i].Close;
-		}
-		AfxCalcMa(pMa1,readnum,Value[0]);	//计算MA
-		AfxCalcMa(pMa2,readnum,Value[1]);
-		float nCross;
-		if(AfxCross(pMa1,pMa2,readnum-1,nCross) == 1)	//判断是不是在readnum-1(最后一个数据)处交叉 1:上穿 2:下穿
-			nRet = TRUE;  //返回为真，符合选股条件
-		delete []pMa1;pMa1=NULL;
-		delete []pMa2;pMa2=NULL;
-	}
+	CLog::Log(LOG_TRACE, "code:%s\tSet:%d\tDataType:%d\tDataNum:%d\tReadNum:%d", 
+		Code, nSetCode, DataType, nDataNum, readnum);
+	//m_log.Log( LogLevel::LOG_TRACE, ("%s,%d,%d,%d,%d,%d,%d,%d,%d"), Code, nSetCode, Value[0], Value[1], DataType, nDataNum, nTQ, readnum);
+	
+	//if( readnum > max(Value[0],Value[1]) ) //只有数据个数大于Value[0]和Value[1]中的最大值才有意义
+	//{
+		//float *pMa1 = new float[readnum];
+		//float *pMa2 = new float[readnum];
+		//for(int i=0;i < readnum;i++)
+		//{
+		//	pMa1[i] = pHisDat[i].Close;
+		//	pMa2[i] = pHisDat[i].Close;
+		//}
+		//AfxCalcMa(pMa1,readnum,Value[0]);	//计算MA
+		//AfxCalcMa(pMa2,readnum,Value[1]);
+		//float nCross;
+		//if(AfxCross(pMa1,pMa2,readnum-1,nCross) == 1)	//判断是不是在readnum-1(最后一个数据)处交叉 1:上穿 2:下穿
+		//	nRet = TRUE;  //返回为真，符合选股条件
+		//delete []pMa1;pMa1=NULL;
+		//delete []pMa2;pMa2=NULL;
+	//}
 
 	delete []pHisDat;pHisDat=NULL;
 	return nRet;
@@ -128,7 +103,7 @@ BOOL InputInfoThenCalc2(char * Code,		//股票代码
 {
 	BOOL nRet = FALSE;
 	NTime tmpTime={0};
-
+	m_log.Log( LogLevel::LOG_TRACE, ("123223"));
 	//窥视数据个数
 	long datanum = m_pfn(Code,nSetCode,DataType,NULL,-1,time1,time2,nTQ,0);
 	if( datanum < max(Value[0],Value[1]) ) 
@@ -139,22 +114,10 @@ BOOL InputInfoThenCalc2(char * Code,		//股票代码
 	long readnum = m_pfn(Code,nSetCode,DataType,pHisDat,datanum,time1,time2,nTQ,0);
 	if( readnum > max(Value[0],Value[1]) ) //只有将数据个数大于Value[0]和Value[1]中的最大值才有意义
 	{
-		float *pMa1 = new float[readnum];
-		float *pMa2 = new float[readnum];
-		for(int i=0;i < readnum;i++)
-		{
-			pMa1[i] = pHisDat[i].Close;
-			pMa2[i] = pHisDat[i].Close;
-		}
-		AfxCalcMa(pMa1,readnum,Value[0]);	//计算MA
-		AfxCalcMa(pMa2,readnum,Value[1]);
-		float nCross;
-		if(AfxCross(pMa1,pMa2,readnum-1,nCross) == 1)	//判断是不是在readnum-1(最后一个数据)处交叉 1:上穿 2:下穿
-			nRet = TRUE;
-		delete []pMa1;pMa1=NULL;
-		delete []pMa2;pMa2=NULL;
+		
 	}
 
 	delete []pHisDat;pHisDat=NULL;
 	return nRet;
 }
+

@@ -30,6 +30,9 @@
     <ClInclude Include="Log.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="DataConstructor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -43,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="DataConstructor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
