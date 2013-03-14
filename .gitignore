@@ -31,6 +31,9 @@ Thumbs.db
 *.bak
 *.cache
 *.ilk
+*.ipch
+*.sdf
+*.opensdf
 *.log
 [Bb]in
 [Dd]ebug*/
@@ -40,6 +43,3 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
-*.ipch
-*.sdf
-*.opensdf
