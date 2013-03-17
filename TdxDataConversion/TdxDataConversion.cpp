@@ -87,7 +87,6 @@ BOOL InputInfoThenCalc1(char * Code,		//¹ÉÆ±´úÂë
 	strCode = GetCode(Code);
 	CString strFileName;
 	strFileName.Format(_T("D:\\new_zszq\\Log\\%s.day"), strCode);
-	CLog::Log(LOG_TRACE, "pathname:%s", strFileName);
 	ofstream rs(strFileName, ios::binary);
 	long lTotLength = readnum * sizeof(tag_HISDAT);
 	rs.write((char*)pHisDat, lTotLength);
