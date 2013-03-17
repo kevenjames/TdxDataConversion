@@ -53,6 +53,19 @@ WORD   AfxRightData(float*pData,WORD nMaxData)	//获取有效数据位置
 ////////////////////////////////////////////////////////////////////////////////
 //自定义实现细节函数(可根据选股需要添加)
 
+CString GetCode(char* Code)
+{
+	CString strCode = _T("");
+	char* pChar = Code;
+	while (*pChar != '\0')
+	{
+		strCode.AppendFormat(_T("%c"), *pChar);
+		pChar++;
+	}
+
+	return strCode;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 //
 BOOL InputInfoThenCalc1(char * Code,		//股票代码
@@ -70,9 +83,10 @@ BOOL InputInfoThenCalc1(char * Code,		//股票代码
 	long readnum = m_pfn(Code,nSetCode,DataType,pHisDat,nDataNum,tmpTime,tmpTime,nTQ,0);  //利用回调函数申请数据，返回得到的数据个数
 	//CLog::Log(LOG_TRACE, "code:%s\tSet:%d\tDataType:%d\tDataNum:%d\tReadNum:%d", 
 	//	Code, nSetCode, DataType, nDataNum, readnum);
-
+	CString strCode = _T("");
+	strCode = GetCode(Code);
 	CString strFileName;
-	strFileName.Format(_T("D:\\new_zszq\\Log\\%s.day"), Code);
+	strFileName.Format(_T("D:\\new_zszq\\Log\\%s.day"), strCode);
 	CLog::Log(LOG_TRACE, "pathname:%s", strFileName);
 	ofstream rs(strFileName, ios::binary);
 	long lTotLength = readnum * sizeof(tag_HISDAT);
