@@ -33,6 +33,12 @@
     <ClInclude Include="DataConstructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OutStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

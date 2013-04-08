@@ -37,8 +37,8 @@ void GetCopyRightInfo(LPPLUGIN info)
 	info->ParamInfo[0].nDefault=1;
 	strcpy(info->ParamInfo[1].acParaName,"数据条数");
 	info->ParamInfo[1].nMin=1;
-	info->ParamInfo[1].nMax=10000;
-	info->ParamInfo[1].nDefault=2000;
+	info->ParamInfo[1].nMax=100000;
+	info->ParamInfo[1].nDefault=100000;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
